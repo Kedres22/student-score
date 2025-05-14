@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student ID Cards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        .student-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+            height: 120mm;
+            width: 70mm;
+        }
+
+        .dark-mode .student-card {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            border-color: #374151;
+        }
+
+        .student-card-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+            color: white;
+            padding: 6px;
+            margin: -12px -12px 8px -12px;
+            border-radius: 12px 12px 0 0;
+            position: relative;
+        }
+
+        .student-card-header h3 {
+            font-size: 13px;
+        }
+
+        .student-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background: #e5e7eb;
+            margin: 0 auto 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #6b7280;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .student-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .student-card-body {
+            padding: 0 6px;
+            margin-bottom: 50px;
+        }
+
+        .student-card-row {
+            display: flex;
+            margin-bottom: 3px;
+            font-size: 10px;
+            align-items: center;
+        }
+
+        .student-card-label {
+            font-weight: 600;
+            min-width: 70px;
+            color: #495057;
+        }
+
+        .dark-mode .student-card-label {
+            color: #9ca3af;
+        }
+
+        .student-card-value {
+            flex: 1;
+            color: #212529;
+        }
+
+        .dark-mode .student-card-value {
+            color: #f3f4f6;
+        }
+
+        .student-card-footer {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+        }
+
+        .dark-mode .student-card-footer {
+            border-top-color: #374151;
+        }
+
+        .student-card-status {
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 10px;
+        }
+
+        .subject-marks-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2px;
+            margin-top: 3px;
+            font-size: 9px;
+        }
+
+        .subject-mark {
+            font-size: 8px;
+            display: flex;
+            justify-content: space-between;
+            padding: 1px 0;
+        }
+
+        .subject-name {
+            color: #64748b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 60px;
+        }
+
+        .dark-mode .subject-name {
+            color: #94a3b8;
+        }
+
+        .mark-value {
+            font-weight: 500;
+            margin-left: 4px;
+        }
+
+        .verification-section {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .qr-code {
+            width: 55px;
+            height: 55px;
+            background: white;
+            padding: 2px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print {
+                display: none !important;
+            }
+            #cardsContainer {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8mm;
+                padding: 8mm;
+            }
+            .student-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                height: 120mm;
+                width: 70mm;
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                margin: 0 !important;
+                padding: 12px !important;
+            }
+            .student-card-header {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .verification-section {
+                position: absolute;
+                bottom: 8px;
+                right: 8px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300 font-sans antialiased">
+    <div class="container mx-auto p-4">
+        <div class="flex justify-between items-center mb-8 no-print">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
+                Student ID Cards
+            </h1>
+            <div class="space-x-4">
+                <button onclick="window.print()" class="btn btn-primary">
+                    🖨️ Print Cards
+                </button>
+                <button onclick="window.history.back()" class="btn btn-secondary">
+                    ← Back
+                </button>
+            </div>
+        </div>
+
+        <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Cards will be inserted here -->
+        </div>
+
+        <div id="noStudents" class="hidden text-center py-12 text-gray-500 dark:text-gray-400">
+            <div class="text-4xl mb-4">😕</div>
+            <p class="text-xl">No student records found</p>
+        </div>
+    </div>
+
+    <!-- Student Card Template -->
+    <template id="cardTemplate">
+        <div class="student-card">
+            <div class="student-card-header">
+                <h3 class="text-lg font-bold text-center">KAWAKOTO GENERAL SCHOOL</h3>
+            </div>
+            <div class="student-photo">
+                <span class="photo-placeholder">👤</span>
+            </div>
+            <div class="student-card-body">
+                <div class="student-card-row">
+                    <span class="student-card-label">Name:</span>
+                    <span class="student-card-value" data-field="name"></span>
+                </div>
+                <div class="student-card-row">
+                    <span class="student-card-label">Age:</span>
+                    <span class="student-card-value" data-field="age"></span>
+                </div>
+                <div class="student-card-row">
+                    <span class="student-card-label">Gender:</span>
+                    <span class="student-card-value" data-field="gender"></span>
+                </div>
+                <div class="student-card-row">
+                    <span class="student-card-label">Grade:</span>
+                    <span class="student-card-value" data-field="grade"></span>
+                </div>
+                <div class="student-card-row">
+                    <span class="student-card-label">Section:</span>
+                    <span class="student-card-value" data-field="section"></span>
+                </div>
+                <div class="student-card-row mt-2">
+                    <span class="student-card-label">Subjects:</span>
+                    <div class="subject-marks-container" data-field="subjects">
+                        <!-- Subjects will be inserted here -->
+                    </div>
+                </div>
+                <div class="student-card-row">
+                    <span class="student-card-label">Total:</span>
+                    <span class="student-card-value" data-field="total"></span>
+                </div>
+                <div class="student-card-row">
+                    <span class="student-card-label">Average:</span>
+                    <span class="student-card-value" data-field="average"></span>
+                </div>
+                <div class="student-card-row">
+                    <span class="student-card-label">Rank:</span>
+                    <span class="student-card-value" data-field="rank"></span>
+                </div>
+                <div class="student-card-row">
+                    <span class="student-card-label">Status:</span>
+                    <span class="student-card-value" data-field="status"></span>
+                </div>
+                
+                <div class="verification-section">
+                    <div class="qr-code" data-field="qrcode"></div>
+                </div>
+            </div>
+            <div class="student-card-footer">
+                <span class="text-gray-500 dark:text-gray-400" data-field="educationLevel"></span>
+                <span class="student-card-status" data-field="rank"></span>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const students = JSON.parse(localStorage.getItem('students')) || [];
+            const container = document.getElementById('cardsContainer');
+            const template = document.getElementById('cardTemplate');
+            const noStudents = document.getElementById('noStudents');
+
+            if (students.length === 0) {
+                noStudents.classList.remove('hidden');
+                return;
+            }
+
+            students.forEach((student, index) => {
+                const clone = template.content.cloneNode(true);
+                
+                // Populate main fields
+                clone.querySelector('[data-field="name"]').textContent = student.name;
+                clone.querySelector('[data-field="age"]').textContent = student.age;
+                clone.querySelector('[data-field="gender"]').textContent = student.gender;
+                clone.querySelector('[data-field="grade"]').textContent = student.grade;
+                clone.querySelector('[data-field="section"]').textContent = student.section;
+                clone.querySelector('[data-field="total"]').textContent = student.total.toFixed(1);
+                clone.querySelector('[data-field="average"]').textContent = `${student.average.toFixed(1)}%`;
+                clone.querySelector('[data-field="rank"]').textContent = student.rank;
+                
+                // Status
+                const status = clone.querySelector('[data-field="status"]');
+                status.textContent = student.status;
+                status.style.color = student.status === 'Pass' ? '#10b981' : '#ef4444';
+                
+                // Education level
+                clone.querySelector('[data-field="educationLevel"]').textContent = 
+                    student.educationLevel + (student.preparatoryStream ? ` (${student.preparatoryStream})` : '');
+                
+                // Rank badge
+                const rankBadge = clone.querySelector('[data-field="rank"]');
+                rankBadge.textContent = `${student.rank}`;
+                rankBadge.style.backgroundColor = student.status === 'Pass' ? '#d1fae5' : '#fee2e2';
+                rankBadge.style.color = student.status === 'Pass' ? '#065f46' : '#991b1b';
+
+                // Add subjects
+                const subjectsContainer = clone.querySelector('.subject-marks-container');
+                if (student.subjects && student.subjects.length > 0) {
+                    student.subjects.forEach(subject => {
+                        const subjectElement = document.createElement('div');
+                        subjectElement.className = 'subject-mark';
+                        subjectElement.innerHTML = `
+                            <span class="subject-name">${subject.name}</span>
+                            <span class="mark-value">${subject.mark}/100</span>
+                        `;
+                        subjectsContainer.appendChild(subjectElement);
+                    });
+                } else {
+                    const noSubjects = document.createElement('div');
+                    noSubjects.className = 'text-gray-400 text-xs';
+                    noSubjects.textContent = 'No subjects available';
+                    subjectsContainer.appendChild(noSubjects);
+                }
+
+                // Generate QR Code with enhanced data
+                const qrCodeContainer = clone.querySelector('[data-field="qrcode"]');
+                const qrData = {
+                    name: student.name,
+                    grade: student.grade,
+                    section: student.section,
+                    status: student.status,
+                    average: student.average.toFixed(1),
+                    rank: student.rank,
+                    timestamp: new Date().toISOString()
+                };
+                
+                QRCode.toCanvas(qrCodeContainer, JSON.stringify(qrData), {
+                    width: 65,
+                    margin: 1,
+                    color: {
+                        dark: '#000000',
+                        light: '#ffffff'
+                    },
+                    errorCorrectionLevel: 'H' // High error correction for better scanning
+                });
+
+                // Add click event to show QR data
+                qrCodeContainer.style.cursor = 'pointer';
+                qrCodeContainer.title = 'Click to view student details';
+                qrCodeContainer.addEventListener('click', () => {
+                    const details = Object.entries(qrData)
+                        .map(([key, value]) => `${key}: ${value}`)
+                        .join('\n');
+                    alert(details);
+                });
+
+                container.appendChild(clone);
+            });
+
+            // Apply dark mode if needed
+            if (document.body.classList.contains('dark-mode')) {
+                document.querySelectorAll('.student-card').forEach(card => {
+                    card.classList.add('dark-mode');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
